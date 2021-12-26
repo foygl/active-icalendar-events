@@ -93,7 +93,7 @@ module ActiveIcalendarEvents
     active_events
   end
 
-  private
+  private_class_method
 
   def format_icalendar_data(icalendar_data)
     icalendar_data.first.events.map { |e|
