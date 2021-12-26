@@ -1,8 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'bundler'
-Bundler.require
-
 require 'active_support'
 require 'active_support/core_ext'
 require 'date'
