@@ -46,7 +46,6 @@ require 'set'
 # - week_start: UNSUPPORTED
 
 module ActiveIcalendarEvents
-  module_function
 
   # datetime:       instance of DateTime
   # icalendar_data: output of Icalendar::Calendar.parse(cal_file)
@@ -92,8 +91,6 @@ module ActiveIcalendarEvents
 
     active_events
   end
-
-  private_class_method
 
   def format_icalendar_data(icalendar_data)
     icalendar_data.first.events.map { |e|
@@ -422,4 +419,15 @@ module ActiveIcalendarEvents
     nil
   end
 
+  private_class_method :format_icalendar_data
+  private_class_method :is_event_active?
+  private_class_method :until_datetime_passed?
+  private_class_method :instance_count_exceeded?
+  private_class_method :is_daily_event_active_for_datetime?
+  private_class_method :is_weekly_event_active_for_datetime?
+  private_class_method :get_nth_day_in_month
+  private_class_method :is_monthly_event_active_for_datetime?
+  private_class_method :is_yearly_event_active_for_datetime?
+  private_class_method :get_active_event_for_datetime
+  module_function :all_active_events
 end
