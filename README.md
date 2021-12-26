@@ -5,15 +5,16 @@ Get all events that are active at a timestamp for an icalendar file.
 This has been manual tested only with Google Calendar and seems to work for all the cases I can think of.
 
 Possible future work:
-- Write some tests.
-- Check it works for calendars that don't start on Monday.
-- Check it works for calendars that are not Google Calendar.
-- Validation of data/parameters.
-- Clean up module interface (currently just exposing all methods with module_function)
+-[ ] Write some tests.
+-[ ] Check it works for calendars that don't start on Monday.
+-[ ] Check it works for calendars that are not Google Calendar.
+-[ ] Validation of data/parameters.
+-[ ] Clean up module interface (currently just exposing all methods with module_function)
+-[ ] Specify timezone rather than assuming that server this is run on is in the same timezone as the calendar.
 
 ## Example Usage
 
-```
+```ruby
 require 'active-icalendar-events'
 require 'open-uri'
 
