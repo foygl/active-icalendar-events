@@ -9,6 +9,7 @@ Possible future work:
 - Check it works for calendars that don't start on Monday.
 - Check it works for calendars that are not Google Calendar.
 - Validation of data/parameters.
+- Clean up module interface (currently just exposing all methods with module_function)
 
 ## Example Usage
 
