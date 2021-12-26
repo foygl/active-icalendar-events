@@ -8,6 +8,7 @@ Possible future work:
 - Write some tests.
 - Check it works for calendars that don't start on Monday.
 - Check it works for calendars that are not Google Calendar.
+- Validation of data/parameters.
 
 ## Example Usage
 
@@ -19,5 +20,5 @@ ICAL_URL = ENV['ICAL_URL']
 
 ical_data = URI::open(ICAL_URL)
 
-active_events = ActiveICalendarEvents::all_active_events(DateTime.now, Icalendar::Calendar.parse(ical_data))
+active_events = ActiveIcalendarEvents::all_active_events(DateTime.now, Icalendar::Calendar.parse(ical_data))
 ```

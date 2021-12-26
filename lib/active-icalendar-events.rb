@@ -45,11 +45,11 @@ require 'set'
 # - by_set_position: UNSUPPORTED
 # - week_start: UNSUPPORTED
 
-class ActiveICalendarEvents
+class ActiveIcalendarEvents
 
   # datetime:       instance of DateTime
   # icalendar_data: output of Icalendar::Calendar.parse(cal_file)
-  def all_active_events(datetime, icalendar_data)
+  def self.all_active_events(datetime, icalendar_data)
     active_events = Set.new
 
     format_icalendar_data(icalendar_data).each do |_, events|
