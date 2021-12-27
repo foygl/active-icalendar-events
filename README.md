@@ -7,7 +7,7 @@ This has been manual tested only with Google Calendar and seems to work for all 
 Possible future work:
 - [x] Write some tests.
 - [ ] Check it works for calendars that don't start on Monday.
-- [ ] Check it works for calendars that are not Google Calendar.
+- [ ] Check it works for calendars that are not Google Calendar. (Checked outlook.live.com but didn't seem to give timezone information in a useful way).
 - [ ] Validation of data/parameters.
 - [ ] Clean up module interface (currently just exposing all methods with module_function)
 - [x] Specify timezone rather than assuming that server this is run on is in the same timezone as the calendar.
