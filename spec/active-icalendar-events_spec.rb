@@ -971,4 +971,34 @@ describe ActiveIcalendarEvents do
       )
     }
   end
+
+  it "check individual events" do
+    ical_file_path = './spec/ical_files/google_calendar_uk_individual_events.ics'
+
+    expected_active_events_at_specific_datetimes = {
+      '2022-01-10 23:59' => [],
+      '2022-01-11 00:00' => ['Individual Event #1', 'Individual Event #2'],
+      '2022-01-11 09:59' => ['Individual Event #1', 'Individual Event #2'],
+      '2022-01-11 10:00' => ['Individual Event #1', 'Individual Event #2', 'Individual Event #3'],
+      '2022-01-11 23:59' => ['Individual Event #1', 'Individual Event #2', 'Individual Event #3'],
+      '2022-01-12 00:00' => ['Individual Event #2', 'Individual Event #3'],
+      '2022-01-12 12:44' => ['Individual Event #2', 'Individual Event #3'],
+      '2022-01-12 12:45' => ['Individual Event #2', 'Individual Event #3', 'Individual Event #4'],
+      '2022-01-12 13:14' => ['Individual Event #2', 'Individual Event #3', 'Individual Event #4'],
+      '2022-01-12 13:15' => ['Individual Event #2', 'Individual Event #3'],
+      '2022-01-12 15:59' => ['Individual Event #2', 'Individual Event #3'],
+      '2022-01-12 16:00' => ['Individual Event #2'],
+      '2022-01-12 23:59' => ['Individual Event #2'],
+      '2022-01-13 00:00' => [],
+    }
+
+    expected_active_events_at_specific_datetimes.each { |datetime, active_events|
+      run_active_events_test(
+        ical_file_path,
+        datetime,
+        'Europe/London',
+        active_events
+      )
+    }
+  end
 end
