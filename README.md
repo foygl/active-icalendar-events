@@ -11,6 +11,8 @@ Possible future work:
 - [ ] Validation of data/parameters.
 - [ ] Clean up module interface (currently just exposing all methods with module_function)
 - [x] Specify timezone rather than assuming that server this is run on is in the same timezone as the calendar.
+- [ ] Enable rubocop
+- [ ] Enable CI
 
 ## Example Usage
 
