@@ -87,13 +87,13 @@ module ActiveIcalendarEvents
     # Remove 'nil' if it has been put in the set
     active_events.delete nil
 
-    active_events
+    active_events.to_a
   end
 
   def format_icalendar_data(icalendar_data)
     icalendar_data.first.events.map { |e|
       {
-        name: e.summary.downcase,
+        name: e.summary,
         event_start: e.dtstart,
         event_end: e.dtend,
         recurrence_rule: e.rrule,
