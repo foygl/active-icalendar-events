@@ -181,8 +181,7 @@ module ActiveIcalendarEvents
         week_event_start_considered =
           event_start_considered.monday? ? event_start_considered :
                                            event_start_considered.prev_occurring(:monday)
-        week_event_end_considered =
-          (week_event_start_considered.to_time + (event_end.to_time - event_start.to_time)).to_datetime
+        week_event_end_considered = week_event_start_considered + (event_end.to_time - event_start.to_time).seconds
 
         (1..7).each { |_|
           if week_event_start_considered >= event_start
@@ -296,8 +295,7 @@ module ActiveIcalendarEvents
         event_start_considered =
           get_nth_day_in_month(event_start_considered.beginning_of_month + interval.month,
                                by_day.first)
-        event_end_considered =
-          (event_start_considered.to_time + (event_end.to_time - event_start.to_time)).to_datetime
+        event_end_considered = event_start_considered + (event_end.to_time - event_start.to_time).seconds
       end
     end
 
