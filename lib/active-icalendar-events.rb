@@ -138,9 +138,8 @@ module ActiveIcalendarEvents
                !overridden_dates.include?(event_start_considered)
       end
 
-      if !excluding_dates.include?(event_start_considered)
-        considered_count += 1
-      end
+      # We consider both active dates and excluded dates for the recurrence count
+      considered_count += 1
 
       event_start_considered = event_start_considered + interval.days
       event_end_considered = event_end_considered + interval.days
@@ -174,9 +173,8 @@ module ActiveIcalendarEvents
                  !overridden_dates.include?(event_start_considered)
         end
 
-        if !excluding_dates.include?(event_start_considered)
-          considered_count += 1
-        end
+        # We consider both active dates and excluded dates for the recurrence count
+        considered_count += 1
       else
         week_event_start_considered =
           event_start_considered.monday? ? event_start_considered :
@@ -199,9 +197,8 @@ module ActiveIcalendarEvents
                        !overridden_dates.include?(week_event_start_considered)
               end
 
-              if !excluding_dates.include?(week_event_start_considered)
-                considered_count += 1
-              end
+              # We consider both active dates and excluded dates for the recurrence count
+              considered_count += 1
             end
           end
 
@@ -284,9 +281,8 @@ module ActiveIcalendarEvents
                !overridden_dates.include?(event_start_considered)
       end
 
-      if !excluding_dates.include?(event_start_considered)
-        considered_count += 1
-      end
+      # We consider both active dates and excluded dates for the recurrence count
+      considered_count += 1
 
       if by_day.nil? || by_day.empty?
         event_start_considered = event_start_considered + interval.month
@@ -322,9 +318,8 @@ module ActiveIcalendarEvents
                !overridden_dates.include?(event_start_considered)
       end
 
-      if !excluding_dates.include?(event_start_considered)
-        considered_count += 1
-      end
+      # We consider both active dates and excluded dates for the recurrence count
+      considered_count += 1
 
       event_start_considered = event_start_considered + interval.years
       event_end_considered = event_end_considered + interval.years
