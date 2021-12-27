@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 Gem::Specification.new do |s|
   s.name        = 'active-icalendar-events'
   s.version     = '0.1.4'
   s.summary     = 'Get all events active at a timestamp for an icalendar file'
-  s.authors     = ["William Starling"]
+  s.authors     = ['William Starling']
   s.email       = 'w.starling+icalendar@gmail.com'
-  s.files       = ['lib/active-icalendar-events.rb']
+  s.files       = ['lib/active_icalendar_events.rb']
   s.homepage    = 'https://github.com/foygl/active-icalendar-events'
   s.license     = 'MIT'
 

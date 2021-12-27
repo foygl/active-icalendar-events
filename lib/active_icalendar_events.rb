@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'active_support'
 require 'active_support/core_ext'
@@ -51,36 +52,36 @@ module ActiveIcalendarEvents
     active_events = Set.new
 
     format_icalendar_data(icalendar_data).each do |_, events|
-      recurrence_definition = events.select { |e|
+      recurrence_definition = events.select do |e|
         !e[:recurrence_rule].empty? || !e[:recurrence_dates].empty?
-      }
+      end
       if recurrence_definition.size > 1
-        raise RuntimeError, 'Should only have one event that defines the recurrence in a group'
+        raise 'Should only have one event that defines the recurrence in a group'
       elsif recurrence_definition.size == 1
         r = recurrence_definition.first
         if r[:recurrence_rule].size > 1
-          raise RuntimeError, 'Multiple recurrence rules not supported'
+          raise 'Multiple recurrence rules not supported'
         elsif r[:recurrence_rule].size == 1
           # TODO: Validate the overrides
           active_events << get_active_event_for_datetime(
-            :datetime => datetime,
-            :name => r[:name],
-            :event_start => r[:event_start],
-            :event_end => r[:event_end],
-            :recurrence_rule => r[:recurrence_rule].first,
-            :recurrence_dates => r[:recurrence_dates],
-            :excluding_dates => r[:excluding_dates],
-            :overrides => events.reject { |e| e == r }.group_by { |e| e[:recurrence_id] }
+            datetime: datetime,
+            name: r[:name],
+            event_start: r[:event_start],
+            event_end: r[:event_end],
+            recurrence_rule: r[:recurrence_rule].first,
+            recurrence_dates: r[:recurrence_dates],
+            excluding_dates: r[:excluding_dates],
+            overrides: events.reject { |e| e == r }.group_by { |e| e[:recurrence_id] }
           )
         else
           # TODO: Haven't bothered implementing this as Google Calendar doesn't seem to use these
-          raise RuntimeError, 'Not yet implemented when only recurrence_dates are provided'
+          raise 'Not yet implemented when only recurrence_dates are provided'
         end
       else
         # Non reccurring events
-        events.each { |e|
-          active_events.add(e[:name]) if is_event_active?(datetime, e[:event_start], e[:event_end])
-        }
+        events.each do |e|
+          active_events.add(e[:name]) if event_active?(datetime, e[:event_start], e[:event_end])
+        end
       end
     end
 
@@ -92,14 +93,14 @@ module ActiveIcalendarEvents
 
   def timezone_for_event(event)
     if event.parent.timezones.empty?
-      ActiveSupport::TimeZone.new(event.parent.custom_properties["x_wr_timezone"].first.to_s)
+      ActiveSupport::TimeZone.new(event.parent.custom_properties['x_wr_timezone'].first.to_s)
     else
       ActiveSupport::TimeZone.new(event.parent.timezones.first.tzid.to_s)
     end
   end
 
   def format_icalendar_data(icalendar_data)
-    icalendar_data.first.events.map { |e|
+    icalendar_data.first.events.map do |e|
       event_start = e.dtstart
       if event_start.is_a?(Icalendar::Values::Date)
         timezone ||= timezone_for_event(e)
@@ -112,30 +113,30 @@ module ActiveIcalendarEvents
         event_end = timezone.local(event_end.year, event_end.month, event_end.day)
       end
 
-      excluding_dates = e.exdate.map { |d|
+      excluding_dates = e.exdate.map do |d|
         if d.is_a?(Icalendar::Values::Date)
           timezone ||= timezone_for_event(e)
           timezone.local(d.year, d.month, d.day)
         else
           d
         end
-      }
+      end
 
-      recurrence_dates = e.rdate.map { |d|
+      recurrence_dates = e.rdate.map do |d|
         if d.is_a?(Icalendar::Values::Date)
           timezone ||= timezone_for_event(e)
           timezone.local(d.year, d.month, d.day)
         else
           d
         end
-      }
+      end
 
-      e.rrule.each { |rrule|
-        if !rrule.until.nil?
+      e.rrule.each do |rrule|
+        unless rrule.until.nil?
           timezone ||= timezone_for_event(e)
           rrule.until = timezone.parse(rrule.until)
         end
-      }
+      end
 
       {
         name: e.summary,
@@ -147,10 +148,10 @@ module ActiveIcalendarEvents
         recurrence_id: e.recurrence_id,
         uid: e.uid
       }
-    }.group_by { |e| e[:uid] }
+    end.group_by { |e| e[:uid] }
   end
 
-  def is_event_active?(datetime, event_start, event_end)
+  def event_active?(datetime, event_start, event_end)
     event_start <= datetime.to_time &&
       event_end > datetime.to_time
   end
@@ -163,14 +164,14 @@ module ActiveIcalendarEvents
     !count.nil? && considered_count > count
   end
 
-  def is_daily_event_active_for_datetime?(datetime,
-                                          event_start,
-                                          event_end,
-                                          until_datetime,
-                                          count,
-                                          interval,
-                                          excluding_dates,
-                                          overridden_dates)
+  def daily_event_active_for_datetime?(datetime,
+                                       event_start,
+                                       event_end,
+                                       until_datetime,
+                                       count,
+                                       interval,
+                                       excluding_dates,
+                                       overridden_dates)
     event_start_considered = event_start
     event_end_considered = event_end
     considered_count = 1
@@ -178,7 +179,7 @@ module ActiveIcalendarEvents
           !instance_count_exceeded?(considered_count, count) &&
           event_start_considered <= datetime
 
-      if is_event_active?(datetime, event_start_considered, event_end_considered)
+      if event_active?(datetime, event_start_considered, event_end_considered)
         return !excluding_dates.include?(event_start_considered) &&
                !overridden_dates.include?(event_start_considered)
       end
@@ -186,35 +187,35 @@ module ActiveIcalendarEvents
       # We consider both active dates and excluded dates for the recurrence count
       considered_count += 1
 
-      event_start_considered = event_start_considered + interval.days
-      event_end_considered = event_end_considered + interval.days
+      event_start_considered += interval.days
+      event_end_considered += interval.days
     end
 
     false
   end
 
-  def is_weekly_event_active_for_datetime?(datetime,
-                                           event_start,
-                                           event_end,
-                                           until_datetime,
-                                           count,
-                                           interval,
-                                           by_day,
-                                           excluding_dates,
-                                           overridden_dates)
+  def weekly_event_active_for_datetime?(datetime,
+                                        event_start,
+                                        event_end,
+                                        until_datetime,
+                                        count,
+                                        interval,
+                                        by_day,
+                                        excluding_dates,
+                                        overridden_dates)
     event_start_considered = event_start
     event_end_considered = event_end
     considered_count = 1
-    while !instance_count_exceeded?(considered_count, count)
+    until instance_count_exceeded?(considered_count, count)
 
-      # Note: Google Calendar does not appear to produce weekly events that do not specify a "by_day" array, so this path is untested
+      # NOTE: Google Calendar does not appear to produce weekly events that do not specify a "by_day" array, so this path is untested
       if by_day.empty?
         if until_datetime_passed?(event_start_considered, until_datetime) ||
            event_start_considered > datetime
           return false
         end
 
-        if is_event_active?(datetime, event_start_considered, event_end_considered)
+        if event_active?(datetime, event_start_considered, event_end_considered)
           return !excluding_dates.include?(event_start_considered) &&
                  !overridden_dates.include?(event_start_considered)
         end
@@ -223,11 +224,14 @@ module ActiveIcalendarEvents
         considered_count += 1
       else
         week_event_start_considered =
-          event_start_considered.monday? ? event_start_considered :
-                                           event_start_considered.prev_occurring(:monday)
+          if event_start_considered.monday?
+            event_start_considered
+          else
+            event_start_considered.prev_occurring(:monday)
+          end
         week_event_end_considered = week_event_start_considered + (event_end.to_time - event_start.to_time).seconds
 
-        (1..7).each { |_|
+        (1..7).each do |_|
           if week_event_start_considered >= event_start
             if until_datetime_passed?(week_event_start_considered, until_datetime) ||
                instance_count_exceeded?(considered_count, count) ||
@@ -235,10 +239,10 @@ module ActiveIcalendarEvents
               return false
             end
 
-            day_code = week_event_start_considered.strftime("%^a").chop
+            day_code = week_event_start_considered.strftime('%^a').chop
 
             if by_day.include?(day_code)
-              if is_event_active?(datetime, week_event_start_considered, week_event_end_considered)
+              if event_active?(datetime, week_event_start_considered, week_event_end_considered)
                 return !excluding_dates.include?(week_event_start_considered) &&
                        !overridden_dates.include?(week_event_start_considered)
               end
@@ -248,13 +252,13 @@ module ActiveIcalendarEvents
             end
           end
 
-          week_event_start_considered = week_event_start_considered + 1.days
-          week_event_end_considered = week_event_end_considered + 1.days
-        }
+          week_event_start_considered += 1.days
+          week_event_end_considered += 1.days
+        end
       end
 
-      event_start_considered = event_start_considered + interval.weeks
-      event_end_considered = event_end_considered + interval.weeks
+      event_start_considered += interval.weeks
+      event_end_considered += interval.weeks
     end
 
     false
@@ -266,10 +270,8 @@ module ActiveIcalendarEvents
   end
 
   def get_nth_day_in_month(datetime, day)
-    matches = day.match /^([0-9]+)([A-Z]+)$/
-    if matches.nil?
-      raise RuntimeError, "Unexpected by_day format found"
-    end
+    matches = day.match(/^([0-9]+)([A-Z]+)$/)
+    raise 'Unexpected by_day format found' if matches.nil?
 
     number, day_code = matches.captures
 
@@ -289,32 +291,30 @@ module ActiveIcalendarEvents
                 when 'SU'
                   :sunday
                 else
-                  raise RuntimeError, "Unexpected day code used"
+                  raise 'Unexpected day code used'
                 end
 
     target_day = beginning_of_month(datetime)
 
-    if target_day.strftime("%^a").chop != day_code
+    target_day = target_day.next_occurring(day_label) if target_day.strftime('%^a').chop != day_code
+
+    (2..number.to_i).each do |_|
       target_day = target_day.next_occurring(day_label)
     end
-
-    (2..number.to_i).each { |_|
-      target_day = target_day.next_occurring(day_label)
-    }
 
     target_day
   end
 
-  def is_monthly_event_active_for_datetime?(datetime,
-                                            event_start,
-                                            event_end,
-                                            until_datetime,
-                                            count,
-                                            interval,
-                                            by_day,
-                                            by_month_day,
-                                            excluding_dates,
-                                            overridden_dates)
+  def monthly_event_active_for_datetime?(datetime,
+                                         event_start,
+                                         event_end,
+                                         until_datetime,
+                                         count,
+                                         interval,
+                                         by_day,
+                                         by_month_day,
+                                         excluding_dates,
+                                         overridden_dates)
     # TODO: We will ignore the contents of "by_month_day" for now and assume
     #       always contains one number which is the same as the day of
     #       "event_start". We additionally assume that "by_day" will only contain
@@ -327,7 +327,7 @@ module ActiveIcalendarEvents
           !instance_count_exceeded?(considered_count, count) &&
           event_start_considered <= datetime
 
-      if is_event_active?(datetime, event_start_considered, event_end_considered)
+      if event_active?(datetime, event_start_considered, event_end_considered)
         return !excluding_dates.include?(event_start_considered) &&
                !overridden_dates.include?(event_start_considered)
       end
@@ -336,8 +336,8 @@ module ActiveIcalendarEvents
       considered_count += 1
 
       if by_day.nil? || by_day.empty?
-        event_start_considered = event_start_considered + interval.month
-        event_end_considered = event_end_considered + interval.month
+        event_start_considered += interval.month
+        event_end_considered += interval.month
       else
         event_start_considered =
           get_nth_day_in_month(beginning_of_month(event_start_considered) + interval.month,
@@ -349,14 +349,14 @@ module ActiveIcalendarEvents
     false
   end
 
-  def is_yearly_event_active_for_datetime?(datetime,
-                                           event_start,
-                                           event_end,
-                                           until_datetime,
-                                           count,
-                                           interval,
-                                           excluding_dates,
-                                           overridden_dates)
+  def yearly_event_active_for_datetime?(datetime,
+                                        event_start,
+                                        event_end,
+                                        until_datetime,
+                                        count,
+                                        interval,
+                                        excluding_dates,
+                                        overridden_dates)
     event_start_considered = event_start
     event_end_considered = event_end
     considered_count = 1
@@ -364,7 +364,7 @@ module ActiveIcalendarEvents
           !instance_count_exceeded?(considered_count, count) &&
           event_start_considered <= datetime
 
-      if is_event_active?(datetime, event_start_considered, event_end_considered)
+      if event_active?(datetime, event_start_considered, event_end_considered)
         return !excluding_dates.include?(event_start_considered) &&
                !overridden_dates.include?(event_start_considered)
       end
@@ -372,8 +372,8 @@ module ActiveIcalendarEvents
       # We consider both active dates and excluded dates for the recurrence count
       considered_count += 1
 
-      event_start_considered = event_start_considered + interval.years
-      event_end_considered = event_end_considered + interval.years
+      event_start_considered += interval.years
+      event_end_considered += interval.years
     end
 
     false
@@ -388,21 +388,21 @@ module ActiveIcalendarEvents
                                     excluding_dates: [],
                                     overrides:)
     # Can return early if one of the overrides matches as they always take precendence
-    overrides.values.flatten.each { |e|
-      return e[:name] if is_event_active?(datetime, e[:event_start], e[:event_end])
-    }
+    overrides.values.flatten.each do |e|
+      return e[:name] if event_active?(datetime, e[:event_start], e[:event_end])
+    end
 
     # Can return early if one of the recurrence dates matches and is not overridden
     # Note: I've just made an assumption about how this data could be presented.
     #       Google Calendar does not seem to create rdates, only rrules.
-    (recurrence_dates - overrides.keys).each { |recurrence_event_start|
+    (recurrence_dates - overrides.keys).each do |recurrence_event_start|
       recurrence_event_end = recurrence_event_start + (event_end.to_time - event_start.to_time).seconds
-      return name if is_event_active?(datetime, recurrence_event_start, recurrence_event_end)
-    }
+      return name if event_active?(datetime, recurrence_event_start, recurrence_event_end)
+    end
 
     case recurrence_rule.frequency
-    when "DAILY"
-      return name if is_daily_event_active_for_datetime?(
+    when 'DAILY'
+      return name if daily_event_active_for_datetime?(
         datetime,
         event_start,
         event_end,
@@ -412,8 +412,8 @@ module ActiveIcalendarEvents
         excluding_dates,
         overrides.keys
       )
-    when "WEEKLY"
-      return name if is_weekly_event_active_for_datetime?(
+    when 'WEEKLY'
+      return name if weekly_event_active_for_datetime?(
         datetime,
         event_start,
         event_end,
@@ -424,8 +424,8 @@ module ActiveIcalendarEvents
         excluding_dates,
         overrides.keys
       )
-    when "MONTHLY"
-      return name if is_monthly_event_active_for_datetime?(
+    when 'MONTHLY'
+      return name if monthly_event_active_for_datetime?(
         datetime,
         event_start,
         event_end,
@@ -437,8 +437,8 @@ module ActiveIcalendarEvents
         excluding_dates,
         overrides.keys
       )
-    when "YEARLY"
-      return name if is_yearly_event_active_for_datetime?(
+    when 'YEARLY'
+      return name if yearly_event_active_for_datetime?(
         datetime,
         event_start,
         event_end,
@@ -449,7 +449,7 @@ module ActiveIcalendarEvents
         overrides.keys
       )
     else
-      throw RuntimeError, "Invalid event frequency"
+      throw RuntimeError, 'Invalid event frequency'
     end
 
     nil
