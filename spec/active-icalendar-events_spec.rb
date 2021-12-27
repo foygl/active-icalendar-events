@@ -17,7 +17,7 @@ describe ActiveIcalendarEvents do
     expect(active_events).to eq(expected_active_events), "expected #{expected_active_events.inspect} for #{datetime}, got #{active_events.inspect}"
   end
 
-  it "check weekly, uk timezone, 25 instances" do
+  it "check weekly, uk timezone over daylight savings, 25 instances" do
     ical_file_path = './spec/ical_files/google_calendar_uk_weekly_1000_to_1300_mwfs_25_instances.ics'
 
     expected_active_days = [
