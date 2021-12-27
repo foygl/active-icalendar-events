@@ -2,7 +2,7 @@
 
 Get all events that are active at a timestamp for an icalendar file.
 
-This has been manual tested only with Google Calendar and seems to work for all the cases I can think of.
+This has been tested only with Google Calendar and seems to work for all the cases I can think of.
 
 Possible future work:
 - [x] Write some tests.
