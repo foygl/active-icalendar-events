@@ -79,7 +79,7 @@ module ActiveIcalendarEvents
       else
         # Non reccurring events
         events.each { |e|
-          active_events.add(e[:name]) if is_event_active?(datetime, e[:event_start].to_time, e[:event_end].to_time)
+          active_events.add(e[:name]) if is_event_active?(datetime, e[:event_start], e[:event_end])
         }
       end
     end
@@ -90,23 +90,31 @@ module ActiveIcalendarEvents
     active_events.to_a
   end
 
+  def timezone_for_event(event)
+    if event.parent.timezones.empty?
+      ActiveSupport::TimeZone.new(event.parent.custom_properties["x_wr_timezone"].first.to_s)
+    else
+      ActiveSupport::TimeZone.new(event.parent.timezones.first.tzid.to_s)
+    end
+  end
+
   def format_icalendar_data(icalendar_data)
     icalendar_data.first.events.map { |e|
       event_start = e.dtstart
       if event_start.is_a?(Icalendar::Values::Date)
-        timezone ||= ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+        timezone ||= timezone_for_event(e)
         event_start = timezone.local(event_start.year, event_start.month, event_start.day)
       end
 
       event_end = e.dtend
       if event_end.is_a?(Icalendar::Values::Date)
-        timezone ||= ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+        timezone ||= timezone_for_event(e)
         event_end = timezone.local(event_end.year, event_end.month, event_end.day)
       end
 
       excluding_dates = e.exdate.map { |d|
         if d.is_a?(Icalendar::Values::Date)
-          timezone ||= ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+          timezone ||= timezone_for_event(e)
           timezone.local(d.year, d.month, d.day)
         else
           d
@@ -115,7 +123,7 @@ module ActiveIcalendarEvents
 
       recurrence_dates = e.rdate.map { |d|
         if d.is_a?(Icalendar::Values::Date)
-          timezone ||= ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+          timezone ||= timezone_for_event(e)
           timezone.local(d.year, d.month, d.day)
         else
           d
@@ -124,7 +132,7 @@ module ActiveIcalendarEvents
 
       e.rrule.each { |rrule|
         if !rrule.until.nil?
-          timezone ||= ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+          timezone ||= timezone_for_event(e)
           rrule.until = timezone.parse(rrule.until)
         end
       }
@@ -199,6 +207,7 @@ module ActiveIcalendarEvents
     considered_count = 1
     while !instance_count_exceeded?(considered_count, count)
 
+      # Note: Google Calendar does not appear to produce weekly events that do not specify a "by_day" array, so this path is untested
       if by_day.empty?
         if until_datetime_passed?(event_start_considered, until_datetime) ||
            event_start_considered > datetime
@@ -380,15 +389,14 @@ module ActiveIcalendarEvents
                                     overrides:)
     # Can return early if one of the overrides matches as they always take precendence
     overrides.values.flatten.each { |e|
-      return e[:name] if e[:event_start] <= datetime.to_time &&
-                         e[:event_end] > datetime.to_time
+      return e[:name] if is_event_active?(datetime, e[:event_start], e[:event_end])
     }
 
     # Can return early if one of the recurrence dates matches and is not overridden
     # Note: I've just made an assumption about how this data could be presented.
     #       Google Calendar does not seem to create rdates, only rrules.
     (recurrence_dates - overrides.keys).each { |recurrence_event_start|
-      recurrence_event_end = recurrence_event_start + (event_end.to_time - event_start.to_time)
+      recurrence_event_end = recurrence_event_start + (event_end.to_time - event_start.to_time).seconds
       return name if is_event_active?(datetime, recurrence_event_start, recurrence_event_end)
     }
 

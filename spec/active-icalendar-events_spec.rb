@@ -866,4 +866,139 @@ describe ActiveIcalendarEvents do
       )
     }
   end
+
+  it "check yearly" do
+    ical_file_path = './spec/ical_files/google_calendar_uk_yearly.ics'
+
+    expected_active_events_at_specific_datetimes = {
+      '2021-01-11 23:59' => [],
+      '2021-01-12 00:00' => [],
+      '2021-01-12 23:59' => [],
+      '2021-01-13 00:00' => [],
+
+      '2022-01-11 23:59' => [],
+      '2022-01-12 00:00' => ['Yearly Event'],
+      '2022-01-12 23:59' => ['Yearly Event'],
+      '2022-01-13 00:00' => [],
+
+      '2023-01-11 23:59' => [],
+      '2023-01-12 00:00' => ['Yearly Event'],
+      '2023-01-12 23:59' => ['Yearly Event'],
+      '2023-01-13 00:00' => [],
+
+      '2024-01-11 23:59' => [],
+      '2024-01-12 00:00' => ['Yearly Event'],
+      '2024-01-12 23:59' => ['Yearly Event'],
+      '2024-01-13 00:00' => [],
+
+      '2025-01-11 23:59' => [],
+      '2025-01-12 00:00' => ['Yearly Event'],
+      '2025-01-12 23:59' => ['Yearly Event'],
+      '2025-01-13 00:00' => [],
+
+      '2026-01-11 23:59' => [],
+      '2026-01-12 00:00' => ['Yearly Event'],
+      '2026-01-12 23:59' => ['Yearly Event'],
+      '2026-01-13 00:00' => [],
+
+      '2027-01-11 23:59' => [],
+      '2027-01-12 00:00' => [],
+      '2027-01-12 23:59' => [],
+      '2027-01-13 00:00' => [],
+    }
+
+    expected_active_events_at_specific_datetimes.each { |datetime, active_events|
+      run_active_events_test(
+        ical_file_path,
+        datetime,
+        'Europe/London',
+        active_events
+      )
+    }
+  end
+
+  it "check yearly, with moves and deletes" do
+    ical_file_path = './spec/ical_files/google_calendar_uk_yearly_with_moves_and_deletes.ics'
+
+    expected_active_events_at_specific_datetimes = {
+      '2021-01-11 23:59' => [],
+      '2021-01-12 00:00' => [],
+      '2021-01-12 23:59' => [],
+      '2021-01-13 00:00' => [],
+
+      '2022-01-10 23:59' => [],
+      '2022-01-11 00:00' => ['Yearly Event'], # Moved back a day
+      '2022-01-11 23:59' => ['Yearly Event'],
+      '2022-01-12 00:00' => [],
+      '2022-01-12 23:59' => [],
+
+      '2023-01-11 23:59' => [],
+      '2023-01-12 00:00' => ['Yearly Event'],
+      '2023-01-12 23:59' => ['Yearly Event'],
+      '2023-01-13 00:00' => [],
+
+      '2024-01-11 23:59' => [],
+      '2024-01-12 00:00' => [], # Deleted
+      '2024-01-12 23:59' => [],
+      '2024-01-13 00:00' => [],
+
+      '2025-01-11 23:59' => [],
+      '2025-01-12 00:00' => [], # Moved to a 10 - 10:30 event
+      '2025-01-12 09:59' => [],
+      '2025-01-12 10:00' => ['Yearly Event'],
+      '2025-01-12 10:29' => ['Yearly Event'],
+      '2025-01-12 10:30' => [],
+      '2025-01-12 23:59' => [],
+      '2025-01-13 00:00' => [],
+
+      '2026-01-11 23:59' => [],
+      '2026-01-12 00:00' => ['Yearly Event'],
+      '2026-01-12 23:59' => ['Yearly Event'],
+      '2026-01-13 00:00' => [],
+
+      '2027-01-11 23:59' => [],
+      '2027-01-12 00:00' => [],
+      '2027-01-12 23:59' => [],
+      '2027-01-13 00:00' => [],
+    }
+
+    expected_active_events_at_specific_datetimes.each { |datetime, active_events|
+      run_active_events_test(
+        ical_file_path,
+        datetime,
+        'Europe/London',
+        active_events
+      )
+    }
+  end
+
+  it "check individual events" do
+    ical_file_path = './spec/ical_files/google_calendar_uk_individual_events.ics'
+
+    expected_active_events_at_specific_datetimes = {
+      '2022-01-10 23:59' => [],
+      '2022-01-11 00:00' => ['Individual Event #1', 'Individual Event #2'],
+      '2022-01-11 09:59' => ['Individual Event #1', 'Individual Event #2'],
+      '2022-01-11 10:00' => ['Individual Event #1', 'Individual Event #2', 'Individual Event #3'],
+      '2022-01-11 23:59' => ['Individual Event #1', 'Individual Event #2', 'Individual Event #3'],
+      '2022-01-12 00:00' => ['Individual Event #2', 'Individual Event #3'],
+      '2022-01-12 12:44' => ['Individual Event #2', 'Individual Event #3'],
+      '2022-01-12 12:45' => ['Individual Event #2', 'Individual Event #3', 'Individual Event #4'],
+      '2022-01-12 13:14' => ['Individual Event #2', 'Individual Event #3', 'Individual Event #4'],
+      '2022-01-12 13:15' => ['Individual Event #2', 'Individual Event #3'],
+      '2022-01-12 15:59' => ['Individual Event #2', 'Individual Event #3'],
+      '2022-01-12 16:00' => ['Individual Event #2'],
+      '2022-01-12 23:59' => ['Individual Event #2'],
+      '2022-01-13 00:00' => [],
+    }
+
+    expected_active_events_at_specific_datetimes.each { |datetime, active_events|
+      run_active_events_test(
+        ical_file_path,
+        datetime,
+        'Europe/London',
+        active_events
+      )
+    }
+  end
 end
