@@ -16,11 +16,21 @@ Possible future work:
 
 ```ruby
 require 'active-icalendar-events'
+require 'active_support'
+require 'active_support/core_ext'
 require 'open-uri'
 
 ICAL_URL = ENV['ICAL_URL']
 
 ical_data = URI::open(ICAL_URL)
 
+datetime = ActiveSupport::TimeZone.new('Europe/London').now.to_datetime
+
 active_events = ActiveIcalendarEvents::all_active_events(DateTime.now, Icalendar::Calendar.parse(ical_data))
+```
+
+## Run Tests
+
+```bash
+bundle exec rspec
 ```
