@@ -207,6 +207,7 @@ module ActiveIcalendarEvents
     considered_count = 1
     while !instance_count_exceeded?(considered_count, count)
 
+      # Note: Google Calendar does not appear to produce weekly events that do not specify a "by_day" array, so this path is untested
       if by_day.empty?
         if until_datetime_passed?(event_start_considered, until_datetime) ||
            event_start_considered > datetime
@@ -395,7 +396,7 @@ module ActiveIcalendarEvents
     # Note: I've just made an assumption about how this data could be presented.
     #       Google Calendar does not seem to create rdates, only rrules.
     (recurrence_dates - overrides.keys).each { |recurrence_event_start|
-      recurrence_event_end = recurrence_event_start + (event_end.to_time - event_start.to_time)
+      recurrence_event_end = recurrence_event_start + (event_end.to_time - event_start.to_time).seconds
       return name if is_event_active?(datetime, recurrence_event_start, recurrence_event_end)
     }
 
