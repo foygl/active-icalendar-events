@@ -251,6 +251,11 @@ module ActiveIcalendarEvents
     false
   end
 
+  # Get the beginning of the month, maintaining the timestamp
+  def beginning_of_month(datetime)
+    datetime - (datetime.day - 1).days
+  end
+
   def get_nth_day_in_month(datetime, day)
     matches = day.match /^([0-9]+)([A-Z]+)$/
     if matches.nil?
@@ -278,7 +283,7 @@ module ActiveIcalendarEvents
                   raise RuntimeError, "Unexpected day code used"
                 end
 
-    target_day = datetime.beginning_of_month
+    target_day = beginning_of_month(datetime)
 
     if target_day.strftime("%^a").chop != day_code
       target_day = target_day.next_occurring(day_label)
@@ -326,7 +331,7 @@ module ActiveIcalendarEvents
         event_end_considered = event_end_considered + interval.month
       else
         event_start_considered =
-          get_nth_day_in_month(event_start_considered.beginning_of_month + interval.month,
+          get_nth_day_in_month(beginning_of_month(event_start_considered) + interval.month,
                                by_day.first)
         event_end_considered = event_start_considered + (event_end.to_time - event_start.to_time).seconds
       end
