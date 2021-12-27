@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require './lib/active_icalendar_events'
+require './lib/active-icalendar-events'
 
 describe ActiveIcalendarEvents do
   def run_active_events_test(ical_file_path, datetime_s, zone_s, expected_active_events)
