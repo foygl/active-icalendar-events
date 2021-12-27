@@ -379,9 +379,14 @@ module ActiveIcalendarEvents
     false
   end
 
-  def get_active_event_for_datetime(name:, event_start:, event_end:, recurrence_rule:, overrides:, datetime: DateTime.now,
+  def get_active_event_for_datetime(datetime: DateTime.now,
+                                    name:,
+                                    event_start:,
+                                    event_end:,
+                                    recurrence_rule:,
                                     recurrence_dates: [],
-                                    excluding_dates: [])
+                                    excluding_dates: [],
+                                    overrides:)
     # Can return early if one of the overrides matches as they always take precendence
     overrides.values.flatten.each do |e|
       return e[:name] if event_active?(datetime, e[:event_start], e[:event_end])
