@@ -41,8 +41,8 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  activesupport (= 6.1)
-  icalendar (= 2.7)
+  activesupport (~> 6.1)
+  icalendar (~> 2.7)
   pry
   rspec
 
