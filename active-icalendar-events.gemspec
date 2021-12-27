@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'active-icalendar-events'
-  s.version     = '0.1.1'
+  s.version     = '0.1.2'
   s.summary     = 'Get all events active at a timestamp for an icalendar file'
   s.authors     = ["William Starling"]
   s.email       = 'w.starling+icalendar@gmail.com'
