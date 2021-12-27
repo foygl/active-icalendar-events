@@ -94,23 +94,48 @@ module ActiveIcalendarEvents
     icalendar_data.first.events.map { |e|
       event_start = e.dtstart
       if event_start.is_a?(Icalendar::Values::Date)
-        timezone = ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+        timezone ||= ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
         event_start = timezone.local(event_start.year, event_start.month, event_start.day)
       end
 
       event_end = e.dtend
       if event_end.is_a?(Icalendar::Values::Date)
-        timezone = ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+        timezone ||= ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
         event_end = timezone.local(event_end.year, event_end.month, event_end.day)
       end
+
+      excluding_dates = e.exdate.map { |d|
+        if d.is_a?(Icalendar::Values::Date)
+          timezone ||= ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+          timezone.local(d.year, d.month, d.day)
+        else
+          d
+        end
+      }
+
+      recurrence_dates = e.rdate.map { |d|
+        if d.is_a?(Icalendar::Values::Date)
+          timezone ||= ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+          timezone.local(d.year, d.month, d.day)
+        else
+          d
+        end
+      }
+
+      e.rrule.each { |rrule|
+        if !rrule.until.nil?
+          timezone ||= ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+          rrule.until = timezone.parse(rrule.until)
+        end
+      }
 
       {
         name: e.summary,
         event_start: event_start,
         event_end: event_end,
         recurrence_rule: e.rrule,
-        recurrence_dates: e.rdate,
-        excluding_dates: e.exdate,
+        recurrence_dates: recurrence_dates,
+        excluding_dates: excluding_dates,
         recurrence_id: e.recurrence_id,
         uid: e.uid
       }
@@ -362,18 +387,13 @@ module ActiveIcalendarEvents
       return name if is_event_active?(datetime, recurrence_event_start, recurrence_event_end)
     }
 
-    until_datetime = nil
-    if !recurrence_rule.until.nil?
-      until_datetime = DateTime.parse(recurrence_rule.until)
-    end
-
     case recurrence_rule.frequency
     when "DAILY"
       return name if is_daily_event_active_for_datetime?(
         datetime,
         event_start,
         event_end,
-        until_datetime,
+        recurrence_rule.until,
         recurrence_rule.count,
         recurrence_rule.interval.nil? ? 1 : recurrence_rule.interval,
         excluding_dates,
@@ -384,7 +404,7 @@ module ActiveIcalendarEvents
         datetime,
         event_start,
         event_end,
-        until_datetime,
+        recurrence_rule.until,
         recurrence_rule.count,
         recurrence_rule.interval.nil? ? 1 : recurrence_rule.interval,
         recurrence_rule.by_day,
@@ -396,7 +416,7 @@ module ActiveIcalendarEvents
         datetime,
         event_start,
         event_end,
-        until_datetime,
+        recurrence_rule.until,
         recurrence_rule.count,
         recurrence_rule.interval.nil? ? 1 : recurrence_rule.interval,
         recurrence_rule.by_day,
@@ -409,7 +429,7 @@ module ActiveIcalendarEvents
         datetime,
         event_start,
         event_end,
-        until_datetime,
+        recurrence_rule.until,
         recurrence_rule.count,
         recurrence_rule.interval.nil? ? 1 : recurrence_rule.interval,
         excluding_dates,

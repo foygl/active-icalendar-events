@@ -3,7 +3,7 @@ require './lib/active-icalendar-events.rb'
 describe ActiveIcalendarEvents do
   def run_active_events_test(ical_file_path, datetime_s, zone_s, expected_active_events)
     zone = ActiveSupport::TimeZone.new(zone_s)
-    datetime = zone.parse(datetime_s).to_datetime
+    datetime = zone.parse(datetime_s)
 
     ical_data = File.open(ical_file_path, 'r') { |ical_file|
       Icalendar::Calendar.parse(ical_file)
@@ -80,7 +80,7 @@ describe ActiveIcalendarEvents do
       '13:00',
       '14:00',
     ]
-    
+
     expected_active_days.each { |day|
       expected_active_times.each { |time|
         run_active_events_test(
@@ -100,7 +100,7 @@ describe ActiveIcalendarEvents do
         )
       }
     }
-    
+
     expected_inactive_days.each { |day|
       (expected_active_times + expected_inactive_times).each { |time|
         run_active_events_test(
@@ -179,7 +179,7 @@ describe ActiveIcalendarEvents do
       '13:00',
       '14:00',
     ]
-    
+
     expected_active_days.each { |day|
       expected_active_times.each { |time|
         run_active_events_test(
@@ -394,7 +394,7 @@ describe ActiveIcalendarEvents do
         )
       }
     }
-    
+
     expected_active_days.each { |day|
       expected_active_times.each { |time|
         run_active_events_test(
@@ -498,7 +498,7 @@ describe ActiveIcalendarEvents do
       '2022-11-04 01:59' => ['Late Night Daily Test'],
       '2022-11-04 02:00' => [],
     }
-    
+
     expected_active_days.each { |day|
       expected_active_events_at_times.each { |time, active_events|
         run_active_events_test(
@@ -509,7 +509,7 @@ describe ActiveIcalendarEvents do
         )
       }
     }
-    
+
     expected_inactive_days.each { |day|
       expected_active_events_at_times.each { |time, _|
         run_active_events_test(
@@ -531,4 +531,117 @@ describe ActiveIcalendarEvents do
     }
   end
 
+  it "check daily, uk timezone over daylight savings, from 2022-10-26 to 2022-11-03, with deletions" do
+    ical_file_path = './spec/ical_files/google_calendar_uk_daily_until_date_with_deletions.ics'
+
+    # Check every active day
+    expected_active_days = [
+      '2022-10-27',
+      '2022-10-28',
+      '2022-10-30',
+      '2022-11-01',
+      '2022-11-02',
+    ]
+
+    expected_deleted_days = [
+      '2022-10-26',
+      '2022-10-29',
+      '2022-10-31',
+      '2022-11-03',
+    ]
+
+    # Check a representative selection of inactive days
+    expected_inactive_days = [
+      '2022-10-24',
+      '2022-10-25',
+      '2022-11-04',
+      '2022-11-05',
+    ]
+
+    expected_active_events_at_times = {
+      '08:00' => ['All Day Daily Test'],
+      '09:00' => ['All Day Daily Test'],
+      '09:59' => ['All Day Daily Test'],
+      '10:00' => ['All Day Daily Test', 'Daily Test'],
+      '11:00' => ['All Day Daily Test', 'Daily Test'],
+      '12:00' => ['All Day Daily Test', 'Daily Test'],
+      '12:59' => ['All Day Daily Test', 'Daily Test'],
+      '13:00' => ['All Day Daily Test'],
+      '14:00' => ['All Day Daily Test'],
+      '20:00' => ['All Day Daily Test'],
+      '21:00' => ['All Day Daily Test'],
+      '22:00' => ['All Day Daily Test'],
+      '22:59' => ['All Day Daily Test'],
+      '23:00' => ['All Day Daily Test', 'Late Night Daily Test'],
+      '23:59' => ['All Day Daily Test', 'Late Night Daily Test'],
+    }
+
+    expected_active_events_at_specific_datetimes = {
+      '2022-10-25 23:00' => [],
+      '2022-10-25 23:59' => [],
+      '2022-10-26 00:00' => [],
+      '2022-10-26 01:00' => [],
+      '2022-10-26 01:59' => [],
+      '2022-10-26 02:00' => [],
+
+      '2022-10-26 23:00' => [],
+      '2022-10-26 23:59' => [],
+      '2022-10-27 00:00' => ['All Day Daily Test'],
+      '2022-10-27 01:00' => ['All Day Daily Test'],
+      '2022-10-27 01:59' => ['All Day Daily Test'],
+      '2022-10-27 02:00' => ['All Day Daily Test'],
+
+      '2022-10-27 23:00' => ['All Day Daily Test', 'Late Night Daily Test'],
+      '2022-10-27 23:59' => ['All Day Daily Test', 'Late Night Daily Test'],
+      '2022-10-28 00:00' => ['All Day Daily Test', 'Late Night Daily Test'],
+      '2022-10-28 01:00' => ['All Day Daily Test', 'Late Night Daily Test'],
+      '2022-10-28 01:59' => ['All Day Daily Test', 'Late Night Daily Test'],
+      '2022-10-28 02:00' => ['All Day Daily Test'],
+
+      '2022-10-29 23:00' => [],
+      '2022-10-29 23:59' => [],
+      '2022-10-30 00:00' => ['All Day Daily Test'],
+      '2022-10-30 01:00' => ['All Day Daily Test'],
+      '2022-10-30 01:59' => ['All Day Daily Test'],
+      '2022-10-30 02:00' => ['All Day Daily Test'],
+
+      '2022-11-02 23:00' => ['All Day Daily Test', 'Late Night Daily Test'],
+      '2022-11-02 23:59' => ['All Day Daily Test', 'Late Night Daily Test'],
+      '2022-11-03 00:00' => ['Late Night Daily Test'],
+      '2022-11-03 01:00' => ['Late Night Daily Test'],
+      '2022-11-03 01:59' => ['Late Night Daily Test'],
+      '2022-11-03 02:00' => [],
+    }
+
+    expected_active_days.each { |day|
+      expected_active_events_at_times.each { |time, active_events|
+        run_active_events_test(
+          ical_file_path,
+          "#{day} #{time}",
+          'Europe/London',
+          active_events
+        )
+      }
+    }
+
+    (expected_inactive_days + expected_deleted_days).each { |day|
+      expected_active_events_at_times.each { |time, _|
+        run_active_events_test(
+          ical_file_path,
+          "#{day} #{time}",
+          'Europe/London',
+          []
+        )
+      }
+    }
+
+    expected_active_events_at_specific_datetimes.each { |datetime, active_events|
+      run_active_events_test(
+        ical_file_path,
+        datetime,
+        'Europe/London',
+        active_events
+      )
+    }
+  end
 end

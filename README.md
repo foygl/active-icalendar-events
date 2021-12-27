@@ -24,7 +24,7 @@ ICAL_URL = ENV['ICAL_URL']
 
 ical_data = URI::open(ICAL_URL)
 
-datetime = ActiveSupport::TimeZone.new('Europe/London').now.to_datetime
+datetime = ActiveSupport::TimeZone.new('Europe/London').now
 
 active_events = ActiveIcalendarEvents::all_active_events(datetime, Icalendar::Calendar.parse(ical_data))
 ```
