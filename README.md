@@ -26,7 +26,7 @@ ical_data = URI::open(ICAL_URL)
 
 datetime = ActiveSupport::TimeZone.new('Europe/London').now.to_datetime
 
-active_events = ActiveIcalendarEvents::all_active_events(DateTime.now, Icalendar::Calendar.parse(ical_data))
+active_events = ActiveIcalendarEvents::all_active_events(datetime, Icalendar::Calendar.parse(ical_data))
 ```
 
 ## Run Tests

@@ -20,6 +20,7 @@ describe ActiveIcalendarEvents do
   it "check weekly, uk timezone over daylight savings, 25 instances" do
     ical_file_path = './spec/ical_files/google_calendar_uk_weekly_1000_to_1300_mwfs_25_instances.ics'
 
+    # Check every active day
     expected_active_days = [
       '2022-03-16',
       '2022-03-18',
@@ -48,6 +49,7 @@ describe ActiveIcalendarEvents do
       '2022-04-27',
     ]
 
+    # Check a representative selection of inactive days
     expected_inactive_days = [
       '2022-03-13',
       '2022-03-14',
