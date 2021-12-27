@@ -79,7 +79,7 @@ module ActiveIcalendarEvents
       else
         # Non reccurring events
         events.each { |e|
-          active_events.add(e[:name]) if is_event_active?(datetime, e[:event_start].to_time, e[:event_end].to_time)
+          active_events.add(e[:name]) if is_event_active?(datetime, e[:event_start], e[:event_end])
         }
       end
     end
@@ -388,8 +388,7 @@ module ActiveIcalendarEvents
                                     overrides:)
     # Can return early if one of the overrides matches as they always take precendence
     overrides.values.flatten.each { |e|
-      return e[:name] if e[:event_start] <= datetime.to_time &&
-                         e[:event_end] > datetime.to_time
+      return e[:name] if is_event_active?(datetime, e[:event_start], e[:event_end])
     }
 
     # Can return early if one of the recurrence dates matches and is not overridden
