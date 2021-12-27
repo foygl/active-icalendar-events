@@ -92,10 +92,22 @@ module ActiveIcalendarEvents
 
   def format_icalendar_data(icalendar_data)
     icalendar_data.first.events.map { |e|
+      event_start = e.dtstart
+      if event_start.is_a?(Icalendar::Values::Date)
+        timezone = ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+        event_start = timezone.local(event_start.year, event_start.month, event_start.day)
+      end
+
+      event_end = e.dtend
+      if event_end.is_a?(Icalendar::Values::Date)
+        timezone = ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+        event_end = timezone.local(event_end.year, event_end.month, event_end.day)
+      end
+
       {
         name: e.summary,
-        event_start: e.dtstart,
-        event_end: e.dtend,
+        event_start: event_start,
+        event_end: event_end,
         recurrence_rule: e.rrule,
         recurrence_dates: e.rdate,
         excluding_dates: e.exdate,
