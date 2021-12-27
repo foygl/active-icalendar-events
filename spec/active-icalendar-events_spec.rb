@@ -644,4 +644,226 @@ describe ActiveIcalendarEvents do
       )
     }
   end
+
+  it "check monthly" do
+    ical_file_path = './spec/ical_files/google_calendar_uk_monthly.ics'
+
+    expected_active_events_at_specific_datetimes = {
+      '2022-01-11 09:59' => [],
+      '2022-01-11 10:00' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-01-11 12:59' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-01-11 13:00' => [],
+
+      '2022-01-14 23:59' => [],
+      '2022-01-15 00:00' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-01-15 12:00' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-01-15 23:59' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-01-16 00:00' => [],
+
+      '2022-01-20 09:59' => [],
+      '2022-01-20 10:00' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-01-20 12:59' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-01-20 13:00' => [],
+
+      '2022-02-08 09:59' => [],
+      '2022-02-08 10:00' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-02-08 12:59' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-02-08 13:00' => [],
+
+      '2022-02-14 23:59' => [],
+      '2022-02-15 00:00' => [],
+      '2022-02-15 12:00' => [],
+      '2022-02-15 23:59' => [],
+      '2022-02-16 00:00' => [],
+
+      '2022-02-17 09:59' => [],
+      '2022-02-17 10:00' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-02-17 12:59' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-02-17 13:00' => [],
+
+      '2022-03-08 09:59' => [],
+      '2022-03-08 10:00' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-03-08 12:59' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-03-08 13:00' => [],
+
+      '2022-03-14 23:59' => [],
+      '2022-03-15 00:00' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-03-15 12:00' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-03-15 23:59' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-03-16 00:00' => [],
+
+      '2022-03-17 09:59' => [],
+      '2022-03-17 10:00' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-03-17 12:59' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-03-17 13:00' => [],
+
+      '2022-04-12 09:59' => [],
+      '2022-04-12 10:00' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-04-12 12:59' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-04-12 13:00' => [],
+
+      '2022-04-14 23:59' => [],
+      '2022-04-15 00:00' => [],
+      '2022-04-15 12:00' => [],
+      '2022-04-15 23:59' => [],
+      '2022-04-16 00:00' => [],
+
+      '2022-04-21 09:59' => [],
+      '2022-04-21 10:00' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-04-21 12:59' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-04-21 13:00' => [],
+
+      '2022-05-10 09:59' => [],
+      '2022-05-10 10:00' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-05-10 12:59' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-05-10 13:00' => [],
+
+      '2022-05-14 23:59' => [],
+      '2022-05-15 00:00' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-05-15 12:00' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-05-15 23:59' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-05-16 00:00' => [],
+
+      '2022-05-19 09:59' => [],
+      '2022-05-19 10:00' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-05-19 12:59' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-05-19 13:00' => [],
+
+      '2022-06-14 09:59' => [],
+      '2022-06-14 10:00' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-06-14 12:59' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-06-14 13:00' => [],
+
+      '2022-06-14 23:59' => [],
+      '2022-06-15 00:00' => [],
+      '2022-06-15 12:00' => [],
+      '2022-06-15 23:59' => [],
+      '2022-06-16 00:00' => [],
+
+      '2022-06-16 09:59' => [],
+      '2022-06-16 10:00' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-06-16 12:59' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-06-16 13:00' => [],
+
+      '2022-07-12 09:59' => [],
+      '2022-07-12 10:00' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-07-12 12:59' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-07-12 13:00' => [],
+
+      '2022-07-14 23:59' => [],
+      '2022-07-15 00:00' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-07-15 12:00' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-07-15 23:59' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-07-16 00:00' => [],
+
+      '2022-07-21 09:59' => [],
+      '2022-07-21 10:00' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-07-21 12:59' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-07-21 13:00' => [],
+
+      '2022-08-09 09:59' => [],
+      '2022-08-09 10:00' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-08-09 12:59' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-08-09 13:00' => [],
+
+      '2022-08-14 23:59' => [],
+      '2022-08-15 00:00' => [],
+      '2022-08-15 12:00' => [],
+      '2022-08-15 23:59' => [],
+      '2022-08-16 00:00' => [],
+
+      '2022-08-18 09:59' => [],
+      '2022-08-18 10:00' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-08-18 12:59' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-08-18 13:00' => [],
+
+      '2022-09-13 09:59' => [],
+      '2022-09-13 10:00' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-09-13 12:59' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-09-13 13:00' => [],
+
+      '2022-09-14 23:59' => [],
+      '2022-09-15 00:00' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-09-15 09:59' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-09-15 10:00' => ['Monthly Test (15th day, bimonthly)', 'Monthly Test (3rd Thursday x 12)'],
+      '2022-09-15 12:00' => ['Monthly Test (15th day, bimonthly)', 'Monthly Test (3rd Thursday x 12)'],
+      '2022-09-15 12:59' => ['Monthly Test (15th day, bimonthly)', 'Monthly Test (3rd Thursday x 12)'],
+      '2022-09-15 13:00' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-09-15 23:59' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-09-16 00:00' => [],
+
+
+      '2022-10-11 09:59' => [],
+      '2022-10-11 10:00' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-10-11 12:59' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-10-11 13:00' => [],
+
+      '2022-10-14 23:59' => [],
+      '2022-10-15 00:00' => [],
+      '2022-10-15 12:00' => [],
+      '2022-10-15 23:59' => [],
+      '2022-10-16 00:00' => [],
+
+      '2022-10-20 09:59' => [],
+      '2022-10-20 10:00' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-10-20 12:59' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-10-20 13:00' => [],
+
+      '2022-11-08 09:59' => [],
+      '2022-11-08 10:00' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-11-08 12:59' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-11-08 13:00' => [],
+
+      '2022-11-14 23:59' => [],
+      '2022-11-15 00:00' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-11-15 12:00' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-11-15 23:59' => ['Monthly Test (15th day, bimonthly)'],
+      '2022-11-16 00:00' => [],
+
+      '2022-11-17 09:59' => [],
+      '2022-11-17 10:00' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-11-17 12:59' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-11-17 13:00' => [],
+
+      '2022-12-13 09:59' => [],
+      '2022-12-13 10:00' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-12-13 12:59' => ['Monthly Test (2nd Tuesday until next year)'],
+      '2022-12-13 13:00' => [],
+
+      '2022-12-14 23:59' => [],
+      '2022-12-15 00:00' => [],
+      '2022-12-15 09:59' => [],
+      '2022-12-15 10:00' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-12-15 12:00' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-12-15 12:59' => ['Monthly Test (3rd Thursday x 12)'],
+      '2022-12-15 13:00' => [],
+      '2022-12-15 23:59' => [],
+      '2022-12-16 00:00' => [],
+
+      '2023-01-10 09:59' => [],
+      '2023-01-10 10:00' => [],
+      '2023-01-10 12:59' => [],
+      '2023-01-10 13:00' => [],
+
+      '2023-01-19 09:59' => [],
+      '2023-01-19 10:00' => [],
+      '2023-01-19 12:59' => [],
+      '2023-01-19 13:00' => [],
+
+      '2023-01-14 23:59' => [],
+      '2023-01-15 00:00' => ['Monthly Test (15th day, bimonthly)'],
+      '2023-01-15 12:00' => ['Monthly Test (15th day, bimonthly)'],
+      '2023-01-15 23:59' => ['Monthly Test (15th day, bimonthly)'],
+      '2023-01-16 00:00' => [],
+    }
+
+    expected_active_events_at_specific_datetimes.each { |datetime, active_events|
+      run_active_events_test(
+        ical_file_path,
+        datetime,
+        'Europe/London',
+        active_events
+      )
+    }
+  end
 end
