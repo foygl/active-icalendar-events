@@ -866,4 +866,54 @@ describe ActiveIcalendarEvents do
       )
     }
   end
+
+  it "check yearly" do
+    ical_file_path = './spec/ical_files/google_calendar_uk_yearly.ics'
+
+    expected_active_events_at_specific_datetimes = {
+      '2021-01-11 23:59' => [],
+      '2021-01-12 00:00' => [],
+      '2021-01-12 23:59' => [],
+      '2021-01-13 00:00' => [],
+
+      '2022-01-11 23:59' => [],
+      '2022-01-12 00:00' => ['Yearly Event'],
+      '2022-01-12 23:59' => ['Yearly Event'],
+      '2022-01-13 00:00' => [],
+
+      '2023-01-11 23:59' => [],
+      '2023-01-12 00:00' => ['Yearly Event'],
+      '2023-01-12 23:59' => ['Yearly Event'],
+      '2023-01-13 00:00' => [],
+
+      '2024-01-11 23:59' => [],
+      '2024-01-12 00:00' => ['Yearly Event'],
+      '2024-01-12 23:59' => ['Yearly Event'],
+      '2024-01-13 00:00' => [],
+
+      '2025-01-11 23:59' => [],
+      '2025-01-12 00:00' => ['Yearly Event'],
+      '2025-01-12 23:59' => ['Yearly Event'],
+      '2025-01-13 00:00' => [],
+
+      '2026-01-11 23:59' => [],
+      '2026-01-12 00:00' => ['Yearly Event'],
+      '2026-01-12 23:59' => ['Yearly Event'],
+      '2026-01-13 00:00' => [],
+
+      '2027-01-11 23:59' => [],
+      '2027-01-12 00:00' => [],
+      '2027-01-12 23:59' => [],
+      '2027-01-13 00:00' => [],
+    }
+
+    expected_active_events_at_specific_datetimes.each { |datetime, active_events|
+      run_active_events_test(
+        ical_file_path,
+        datetime,
+        'Europe/London',
+        active_events
+      )
+    }
+  end
 end

@@ -90,23 +90,31 @@ module ActiveIcalendarEvents
     active_events.to_a
   end
 
+  def timezone_for_event(event)
+    if event.parent.timezones.empty?
+      ActiveSupport::TimeZone.new(event.parent.custom_properties["x_wr_timezone"].first.to_s)
+    else
+      ActiveSupport::TimeZone.new(event.parent.timezones.first.tzid.to_s)
+    end
+  end
+
   def format_icalendar_data(icalendar_data)
     icalendar_data.first.events.map { |e|
       event_start = e.dtstart
       if event_start.is_a?(Icalendar::Values::Date)
-        timezone ||= ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+        timezone ||= timezone_for_event(e)
         event_start = timezone.local(event_start.year, event_start.month, event_start.day)
       end
 
       event_end = e.dtend
       if event_end.is_a?(Icalendar::Values::Date)
-        timezone ||= ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+        timezone ||= timezone_for_event(e)
         event_end = timezone.local(event_end.year, event_end.month, event_end.day)
       end
 
       excluding_dates = e.exdate.map { |d|
         if d.is_a?(Icalendar::Values::Date)
-          timezone ||= ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+          timezone ||= timezone_for_event(e)
           timezone.local(d.year, d.month, d.day)
         else
           d
@@ -115,7 +123,7 @@ module ActiveIcalendarEvents
 
       recurrence_dates = e.rdate.map { |d|
         if d.is_a?(Icalendar::Values::Date)
-          timezone ||= ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+          timezone ||= timezone_for_event(e)
           timezone.local(d.year, d.month, d.day)
         else
           d
@@ -124,7 +132,7 @@ module ActiveIcalendarEvents
 
       e.rrule.each { |rrule|
         if !rrule.until.nil?
-          timezone ||= ActiveSupport::TimeZone.new(e.parent.timezones.first.tzid.to_s)
+          timezone ||= timezone_for_event(e)
           rrule.until = timezone.parse(rrule.until)
         end
       }
