@@ -5,4 +5,5 @@ group :test do
   gem 'icalendar', '~> 2.7'
   gem 'pry'
   gem 'rspec'
+  gem 'simplecov'
 end
